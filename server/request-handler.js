@@ -1,4 +1,3 @@
-
 /*************************************************************
 
 You should implement your request handler function in this file.
@@ -12,6 +11,10 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var url = require('url');
+
+// /classes/messages?order=-createdAt
+
 var messages = [];
 
 var lastObjectId = -1;
@@ -31,6 +34,7 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
+  var parseUrl = url.parse(request.url, true);
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
   // The outgoing status.
@@ -68,12 +72,12 @@ var requestHandler = function(request, response) {
   if (request.method === 'GET') {
     response.writeHead(200, headers);
 
-    if (request.url !== '/classes/messages') {
+    if (parseUrl.pathname !== '/classes/messages') {
       response.writeHead(404, headers);
     }
     response.end(JSON.stringify({results: messages}));
   } else if (request.method === 'POST') {
-    if (request.url === '/classes/messages') {
+    if (parseUrl.pathname === '/classes/messages') {
       statusCode = 201;
       // add message to the data
       var body = [];

@@ -61,12 +61,11 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'GET',
-      //data: { order: '-createdAt' },
+      data: { order: '-createdAt' },
       contentType: 'application/json',
       success: function(data) {
         console.log('fetch succes');
         console.log(data);
-        console.log(data.results);
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { 
           app.stopSpinner();
@@ -172,7 +171,7 @@ var app = {
     $message.text(message.text).appendTo($chat);
 
     // Add the message to the UI
-    app.$chats.append($chat);
+    app.$chats.prepend($chat);
 
   },
 
