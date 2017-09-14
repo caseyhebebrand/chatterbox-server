@@ -14,6 +14,8 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 var messages = [];
 
+var lastObjectId = -1;
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -43,9 +45,6 @@ var requestHandler = function(request, response) {
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
-  var responseObj = {
-    results: []
-  };
 
   // Tell the client we are sending them plain text.
   //
@@ -83,12 +82,19 @@ var requestHandler = function(request, response) {
       });
       request.on('end', function() {
         body = [].concat(body).toString();
-        messages.push(JSON.parse(body));
+        var message = JSON.parse(body);
+        lastObjectId++;
+        message.objectId = lastObjectId.toString();
+        message.createdAt = new Date();
+        messages.push(message);
         response.writeHead(statusCode, headers);
         response.end(JSON.stringify({results: messages}));
 
       });
     }
+  } else if (request.method === 'OPTIONS') {
+    response.writeHead(200, headers);
+    response.end(headers['access-control-allow-methods']);
   } else {
     response.writeHead(404, headers);
     response.end();
