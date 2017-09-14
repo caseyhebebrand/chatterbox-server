@@ -1,3 +1,4 @@
+
 /*************************************************************
 
 You should implement your request handler function in this file.
@@ -41,7 +42,7 @@ var requestHandler = function(request, response) {
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
-
+  var messages = [];
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
@@ -50,7 +51,7 @@ var requestHandler = function(request, response) {
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
+  //response.writeHead(statusCode, headers);
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -59,7 +60,29 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+  //response.end(JSON.stringify({results: []}));
+
+  if (request.method === 'GET') {
+    response.writeHead(statusCode, headers);
+    response.end(JSON.stringify({results: messages}));
+  } else if (request.method === 'POST') {
+    if (request.url === '/classes/messages') {
+      response.writeHead(201, headers);
+      // add message to the data
+    
+      var message = '';
+      request.on('data', function(item) {
+        message += item;
+      });
+      request.on('end', function() {
+        // create message
+        // push message to the results object
+      });
+    }
+    response.end();
+  } else {
+    // if not found return a 4040 error
+  }
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
