@@ -12,6 +12,7 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var messages = [];
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -42,7 +43,10 @@ var requestHandler = function(request, response) {
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
-  var messages = [];
+  var responseObj = {
+    results: []
+  };
+
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
@@ -63,26 +67,33 @@ var requestHandler = function(request, response) {
   //response.end(JSON.stringify({results: []}));
 
   if (request.method === 'GET') {
-    response.writeHead(statusCode, headers);
+    response.writeHead(200, headers);
+
+    if (request.url !== '/classes/messages') {
+      response.writeHead(404, headers);
+    }
     response.end(JSON.stringify({results: messages}));
   } else if (request.method === 'POST') {
     if (request.url === '/classes/messages') {
-      response.writeHead(201, headers);
+      statusCode = 201;
       // add message to the data
-    
-      var message = '';
+      var body = [];
       request.on('data', function(item) {
-        message += item;
+        body.push(item);
       });
       request.on('end', function() {
-        // create message
-        // push message to the results object
+        body = [].concat(body).toString();
+        messages.push(JSON.parse(body));
+        response.writeHead(statusCode, headers);
+        response.end(JSON.stringify({results: messages}));
+
       });
     }
-    response.end();
   } else {
-    // if not found return a 4040 error
+    response.writeHead(404, headers);
+    response.end();
   }
+
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
